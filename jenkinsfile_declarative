@@ -1,6 +1,6 @@
 pipeline{
 
-agent ('node one');
+agent any;
     tools{
         maven 'Maven'
     }
