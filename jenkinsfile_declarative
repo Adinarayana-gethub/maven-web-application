@@ -1,0 +1,42 @@
+pipeline{
+
+agent any;
+    tools{
+        maven 'Maven'
+    }
+    
+    stages{
+    	stage('get build from Git'){
+	    steps{
+	    git branch: 'development', credentialsId: 'GIT', url: 'https://github.com/Adinarayana-gethub/maven-web-application.git'
+            }
+           }
+    
+    stage('Build code'){
+        steps{
+	    sh "mvn clean package"
+    }
+    }
+    
+    stage('Sonarqube Report'){
+	    steps{
+	    sh "mvn sonar:sonar"
+	}
+	}
+	
+	stage('deployeartifacts to nexus'){
+	    steps{
+	    sh "mvn deploy"
+	}
+	}
+	
+    stage('deploy build to Tomcat'){
+	    steps{
+	    sshagent(['tom']) {
+	    sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.232.52.70:/opt/apache-tomcat-9.0.44/webapps/"
+	}
+	}
+    }
+        
+    }
+}
